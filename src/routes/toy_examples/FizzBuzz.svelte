@@ -13,8 +13,9 @@
 {:else}
 	{#if x % 3 == 0}
 		<h1>FIZZ</h1>
-	{/if}
-	{#if x % 5 == 0}
+	{:else if x % 5 == 0}
 		<h1>BUZZ</h1>
+	{:else}
+		<h1>{x}</h1>
 	{/if}
 {/if}
