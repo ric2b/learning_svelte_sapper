@@ -24,12 +24,13 @@
 		            label: 'My First dataset',
 		            backgroundColor: 'rgb(255, 99, 132)',
 		            borderColor: 'rgb(255, 99, 132)',
-		            data: [0, 10, 5, 2, 20, 30, 45]
+		            data: [0, 10, 5, null, 20, 30, 45],
+		            fill: false
 		        }]
 		    },
 
 		    // Configuration options go here
-		    options: {}
+		    options: {spanGaps: true}
 		});
 		
 		update_last_element = (value) => {
