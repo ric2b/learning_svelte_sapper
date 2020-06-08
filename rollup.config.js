@@ -54,7 +54,6 @@ export default {
 				module: true
 			})
 		],
-
 		preserveEntrySignatures: false,
 		onwarn,
 	},
@@ -99,5 +98,7 @@ export default {
 
 		preserveEntrySignatures: false,
 		onwarn,
-	}
+	}, 
+
+	external: ['moment'], // To use date-fns with chart.js instead.
 };
