@@ -4,6 +4,7 @@
     import { formatISO, min, max, startOfDay, sub } from 'date-fns';
     import 'chartjs-adapter-date-fns';
     import 'chartjs-plugin-colorschemes';
+    import 'chartjs-plugin-crosshair';
 
     export let raw_data;
 
@@ -49,9 +50,21 @@
                         //distribution: 'linear'
                     }]
                 },
+                tooltips: {
+                    mode: 'index',
+                    axis: 'x',
+                    intersect: false
+                },
                 plugins: {
                     colorschemes: {
                         scheme: 'tableau.Classic20' // https://nagix.github.io/chartjs-plugin-colorschemes/
+                    },
+                    crosshair: {
+                        zoom: {
+                            enabled: true,
+                            //zoomButtonText: 'Reset Zoom',                       // reset zoom button text
+                            //zoomButtonClass: 'reset-zoom',                      // reset zoom button class
+                        }
                     }
                 }
             }
