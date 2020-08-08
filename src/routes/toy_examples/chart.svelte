@@ -1,7 +1,7 @@
 <script>
     import { onMount, afterUpdate } from 'svelte';
     import { Chart } from 'chart.js';
-    import { formatISO, min, max, startOfDay, sub } from 'date-fns';
+    import { formatISO, startOfDay, sub } from 'date-fns';
     import 'chartjs-adapter-date-fns';
     import 'chartjs-plugin-colorschemes';
     import 'chartjs-plugin-crosshair';
@@ -46,13 +46,13 @@
                         ticks: { 
                             min: min_tick, 
                             max: max_tick, 
-                        }
+                        },
                         //distribution: 'linear'
                     }]
                 },
                 tooltips: {
                     mode: 'index',
-                    axis: 'x',
+                    //axis: 'x',
                     intersect: false
                 },
                 plugins: {
@@ -75,6 +75,15 @@
         chart.data.datasets[0].data = data
         chart.options.scales.xAxes[0].ticks.min = min_tick;
         chart.options.scales.xAxes[0].ticks.max = max_tick;
+
+        // workaround for zoom from crosshair plugin
+        chart.options.scales.xAxes[0].time.min = min_tick;
+        chart.options.scales.xAxes[0].time.max = max_tick;
+        if (chart.crosshair.button && chart.crosshair.button.parentNode) {
+            chart.crosshair.button.parentNode.removeChild(chart.crosshair.button);
+            chart.crosshair.button = false;
+        }
+
         chart.update();
     });
 </script>

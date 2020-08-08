@@ -1,7 +1,8 @@
 <script>
-    import { formatISO, differenceInCalendarDays, min, max, startOfDay, sub } from 'date-fns';
+    import { formatISO, differenceInCalendarDays, startOfDay, sub } from 'date-fns';
 
     import Chart from './chart.svelte';
+    import ProductPicker from './product_picker.svelte'
 
     const isoDate = date => formatISO(date, { representation: 'date' });
 
@@ -13,8 +14,8 @@
     let start_date = startOfDay(sub(new Date(), { years: 4 }));
     let end_date = new Date();
 
-    let picked_start_date = isoDate(start_date);
-    let picked_end_date = isoDate(end_date);
+    // let picked_start_date = isoDate(start_date);
+    // let picked_end_date = isoDate(end_date);
 
     // let min_date;
     // let max_date;
@@ -35,9 +36,14 @@
         }
     }
 
+    let selected_products;
+
+    $: console.log(selected_products);
+
     $: raw_data = [...Array(Math.floor(differenceInCalendarDays(new Date(picked_end_date), new Date(picked_start_date))/10))].map(_x => generate_data()).sort((a, b) => a.t - b.t);
 </script>
 
-<Chart {raw_data}></Chart>
+<ProductPicker bind:selected_products />
+<Chart {raw_data} />
 <label>Start date<input bind:this={start_date_picker} type=date bind:value={picked_start_date}></label>
 <label>End date<input bind:this={end_date_picker} type=date bind:value={picked_end_date}></label>
