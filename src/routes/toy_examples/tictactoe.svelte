@@ -2,10 +2,7 @@
     const player_x = 'X';
     const player_o = 'O';
 
-	const plays = {
-        [player_x]: [],
-        [player_o]: [],
-    }
+	const plays = { [player_x]: [], [player_o]: [] }
 
     $: current_player = plays[player_x].length <= plays[player_o].length ? player_x : player_o;
     $: all_plays = [...plays[player_x], ...plays[player_o]]
@@ -24,20 +21,20 @@
 
     $: x_won = player_won(plays[player_x]);
     $: o_won = player_won(plays[player_o]);
-    $: game_over = x_won || o_won || all_plays.length == 9;
+    $: game_over = x_won || o_won || all_plays.length >= 9;
 
     function set_place(i, j) {
         plays[current_player] = [...plays[current_player], `${i}${j}`];
         plays = plays;
     }
 
-    $: cell_values = [0, 1, 2].map(i => [1, 2, 3].map(j => cell_value(plays, i, j)));
-
     function cell_value(plays, i, j) {
         if (plays[player_x].includes(cell_id(i, j))) return player_x;
         if (plays[player_o].includes(cell_id(i, j))) return player_o;
-        return '_';
+        return ' ';
     }
+
+    const cell_disabled = (plays, i, j)  => game_over || plays.includes(cell_id(i, j));
 
     function restart() {
         plays[player_x] = [];
@@ -45,24 +42,47 @@
     }
 </script>
 
+
 <h1>Tic Tac Toe</h1>
+<h3>Current player: {current_player}</h3>
+<div class='board'>
+    {#each [...Array(3*3).keys()].map(i => [Math.floor(i / 3), i % 3]) as [i, j] (`${i}${j}`) }
+    <button class="grid" data-player={cell_value(plays, i, j)} disabled={cell_disabled(all_plays, i, j)} on:click={() => set_place(i, j)}/>
+    {/each}
+</div>
 
 {#if x_won } <h2>X won!</h2> {/if}
 {#if o_won } <h2>O won!</h2> {/if}
 {#if game_over } <button on:click={restart}>Restart</button> {/if}
 
-<div>
-    <button disabled={all_plays.includes(cell_id(0, 0)) || game_over} on:click={() => set_place(0, 0)}>{cell_value(plays, 0, 0)}</button>
-    <button disabled={all_plays.includes(cell_id(0, 1)) || game_over} on:click={() => set_place(0, 1)}>{cell_value(plays, 0, 1)}</button>
-    <button disabled={all_plays.includes(cell_id(0, 2)) || game_over} on:click={() => set_place(0, 2)}>{cell_value(plays, 0, 2)}</button>
-</div>
-<div>
-    <button disabled={all_plays.includes(cell_id(1, 0)) || game_over} on:click={() => set_place(1, 0)}>{cell_value(plays, 1, 0)}</button>
-    <button disabled={all_plays.includes(cell_id(1, 1)) || game_over} on:click={() => set_place(1, 1)}>{cell_value(plays, 1, 1)}</button>
-    <button disabled={all_plays.includes(cell_id(1, 2)) || game_over} on:click={() => set_place(1, 2)}>{cell_value(plays, 1, 2)}</button>
-</div>
-<div>
-    <button disabled={all_plays.includes(cell_id(2, 0)) || game_over} on:click={() => set_place(2, 0)}>{cell_value(plays, 2, 0)}</button>
-    <button disabled={all_plays.includes(cell_id(2, 1)) || game_over} on:click={() => set_place(2, 1)}>{cell_value(plays, 2, 1)}</button>
-    <button disabled={all_plays.includes(cell_id(2, 2)) || game_over} on:click={() => set_place(2, 2)}>{cell_value(plays, 2, 2)}</button>
-</div>
+
+<style type="text/css">
+    .board {
+        display: grid;
+        grid-template: repeat(3, 10vw) / repeat(3, 10vw);
+    }
+
+    button.grid {
+        background: #fff;
+        border: 1px solid #999;
+        
+        font-size: 8vw;
+        font-weight: bold;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    button.grid:disabled {
+        background: #f0f0f0;
+    }
+
+    button.grid[data-player='X']:after { 
+        content: 'X';
+        color: red;
+    }
+    
+    button.grid[data-player='O']:after { 
+        content: 'O'; 
+        color: green; 
+    }
+</style>
