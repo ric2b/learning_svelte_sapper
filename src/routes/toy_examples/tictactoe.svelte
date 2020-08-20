@@ -1,14 +1,12 @@
 <script type="text/javascript">
     const player_x = 'X';
     const player_o = 'O';
+    let ai_enabled = false;
 
     const cell_coordinates = [...Array(3*3).keys()].map(i => [Math.floor(i / 3), i % 3]);
     const cell_id = (i, j) => `${i}${j}`; // cause JS doean't have tuples or equals between arrays/objs... :rolls_eyes:
 
 	const plays = { [player_x]: [], [player_o]: [] };
-
-    $: current_player = plays[player_x].length <= plays[player_o].length ? player_x : player_o;
-    $: all_plays = [...plays[player_x], ...plays[player_o]];
 
     const rows = [0, 1, 2].map(i => [cell_id(i, 0), cell_id(i, 1), cell_id(i, 2)]);
     const columns = [0, 1, 2].map(j => [cell_id(0, j), cell_id(1, j), cell_id(2, j)]);
@@ -20,6 +18,8 @@
         return winning_conditions.some(win_condition => win_condition.every(cell => player_plays.includes(cell)));        
     }
 
+    $: current_player = plays[player_x].length <= plays[player_o].length ? player_x : player_o;
+    $: all_plays = [...plays[player_x], ...plays[player_o]];
     $: x_won = player_won(plays[player_x]);
     $: o_won = player_won(plays[player_o]);
     $: game_over = x_won || o_won || all_plays.length >= 9;
@@ -27,7 +27,7 @@
     function set_place(i, j) {
         plays[current_player] = [...plays[current_player], cell_id(i, j)];
         
-        if (current_player === player_x && !player_won(plays[player_x])) {
+        if (ai_enabled && current_player === player_x && !player_won(plays[player_x])) {
             const available_coordinates = cell_coordinates.filter(([i, j]) => ![...plays[player_x], ...plays[player_o]].includes(cell_id(i, j)));
             const [i, j] = ai_move(available_coordinates);
             plays[player_o] = [...plays[player_o], cell_id(i, j)];
@@ -55,6 +55,7 @@
 
 <h1>Tic Tac Toe</h1>
 <h3>Current player: {current_player}</h3>
+<label>Enable AI: <input type="checkbox" bind:checked={ai_enabled}/></label>
 <div class='board'>
     {#each cell_coordinates as [i, j] (cell_id(i, j)) }
     <button class="grid" data-player={cell_value(plays, i, j)} disabled={cell_disabled(all_plays, i, j)} on:click={() => set_place(i, j)}/>
