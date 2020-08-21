@@ -1,15 +1,16 @@
 <script type="text/javascript">
+    export let store;
     export const selected_products = new Map();
 
-    const products = [
-        {id: 1, name: "Pringle 1"}, 
-        {id: 2, name: "Pringle 2"}, 
-        {id: 3, name: "Lays"},
+    $: available_products = [
+        {id: `${store.id}-1`, store: store, name: "Pringle 1"}, 
+        {id: `${store.id}-2`, store: store, name: "Pringle 2"}, 
+        {id: `${store.id}-3`, store: store, name: "Lays"},
     ];
 
     let search_expression = "";
 
-    $: search_results = products.filter(({id, name}) => name.startsWith(search_expression));
+    $: search_results = available_products.filter(({id, name}) => name.startsWith(search_expression));
 
     function select_product(product) {
         selected_products.set(product.id, product);
@@ -31,9 +32,12 @@
     <figcaption>Results</figcaption>
     <ul>
         {#each search_results as product (product.id)}
-        <li> <label>
-            {product.name} <button on:click={() => select_product(product)}>+</button>
-        </label> </li> 
+        <li>
+            <label>
+                {product.name} 
+                <button on:click={() => select_product(product)} disabled={selected_products.has(product.id)}>+</button>
+            </label> 
+        </li> 
         {/each}
     </ul>
 </figure>
@@ -45,7 +49,7 @@
     <ul>
         {#each [...selected_products.values()] as product (product.id)}
         <li> <label>
-            {product.name} <button on:click={() => unselect_product(product)}>x</button>
+            {product.store.name} - {product.name} <button on:click={() => unselect_product(product)}>x</button>
         </label> </li> 
         {/each}
     </ul>

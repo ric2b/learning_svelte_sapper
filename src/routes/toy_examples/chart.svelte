@@ -18,38 +18,12 @@
 
     $: data = raw_data//.filter(({t, y}) => Date.parse(start_date) <= t && t <= Date.parse(end_date))
 
-    //$: if(chart) { console.log('hey'); chart.data.datasets[0].data = data; chart.update(); }
-
     onMount(async () => {
         let ctx = canvas.getContext('2d');  
         chart = new Chart(ctx, {
             type: 'line',
-            data: {
-                datasets: [{
-                    label: 'My First dataset',
-                    //backgroundColor: 'rgb(255, 99, 132)',
-                    //borderColor: 'rgb(255, 99, 132)',
-                    data: data,
-                    fill: false,
-                    steppedLine: true // https://www.chartjs.org/samples/latest/charts/line/stepped.html
-                }]
-            },
             options: {
                 spanGaps: true,
-                scales: {
-                    xAxes: [{
-                        type: 'time',
-                        time: {
-                            minUnit: 'day',
-                            round: 'day',
-                        },
-                        ticks: { 
-                            min: min_tick, 
-                            max: max_tick, 
-                        },
-                        //distribution: 'linear'
-                    }]
-                },
                 tooltips: {
                     mode: 'index',
                     //axis: 'x',
@@ -61,7 +35,8 @@
                     },
                     crosshair: {
                         zoom: {
-                            enabled: true,
+                            enabled: false,
+                            //enabled: true,
                             //zoomButtonText: 'Reset Zoom',                       // reset zoom button text
                             //zoomButtonClass: 'reset-zoom',                      // reset zoom button class
                         }
@@ -72,13 +47,41 @@
     })
 
     afterUpdate(() => {
-        chart.data.datasets[0].data = data
-        chart.options.scales.xAxes[0].ticks.min = min_tick;
-        chart.options.scales.xAxes[0].ticks.max = max_tick;
+        const datasets = [...Array(data.length)];
+        const xAxes = [...Array(data.length)];
 
-        // workaround for zoom from crosshair plugin
-        chart.options.scales.xAxes[0].time.min = min_tick;
-        chart.options.scales.xAxes[0].time.max = max_tick;
+        data.forEach((product_data, i) => {
+            datasets[i] = {
+                label: `${product_data.product.store.name} - ${product_data.product.name}`,
+                //backgroundColor: 'rgb(255, 99, 132)',
+                //borderColor: 'rgb(255, 99, 132)',
+                data: product_data.data,
+                fill: false,
+                steppedLine: true, // https://www.chartjs.org/samples/latest/charts/line/stepped.html
+            };
+
+            xAxes[i] = {
+                type: 'time',
+                time: {
+                    minUnit: 'day',
+                    round: 'day',
+                },
+                ticks: { 
+                    min: min_tick, 
+                    max: max_tick, 
+                },
+                // workaround for zoom from crosshair plugin
+                time: {
+                    min: min_tick,
+                    max: max_tick,
+                },
+                //distribution: 'linear',
+            };
+        });
+
+        chart.data.datasets = datasets;
+        chart.options.scales.xAxes = xAxes.slice(0, 1);
+
         if (chart.crosshair.button && chart.crosshair.button.parentNode) {
             chart.crosshair.button.parentNode.removeChild(chart.crosshair.button);
             chart.crosshair.button = false;

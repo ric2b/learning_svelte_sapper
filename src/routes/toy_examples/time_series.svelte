@@ -11,39 +11,43 @@
     let start_date_picker;
     let end_date_picker;
 
-    let start_date = startOfDay(sub(new Date(), { years: 4 }));
+    let start_date = startOfDay(sub(new Date(), { years: 1 }));
     let end_date = new Date();
-
-    // let picked_start_date = isoDate(start_date);
-    // let picked_end_date = isoDate(end_date);
-
-    // let min_date;
-    // let max_date;
 
     $: picked_start_date = isoDate(start_date);
     $: picked_end_date = isoDate(end_date);
 
-    // $: min_date = min(raw_data.map(x => x.t))
-    // $: max_date = max(raw_data.map(x => x.t))
-
-    // $: if(start_date_picker) { start_date_picker.min = min_date; start_date_picker.max = max_date; }
-    // $: if(end_date_picker) { end_date_picker.min = min_date; end_date_picker.max = max_date; }
-
-    function generate_data() {
+    function generate_data(product) {
         return {
             t: new Date(Date.parse(picked_start_date) + Math.random() * (Date.parse(picked_end_date) - Date.parse(picked_start_date))), 
-            y: Math.random() * 100 
+            y: Math.random() * 100,
         }
     }
 
-    let selected_products;
+    const available_stores = [
+        {id: 1, name: "Store 1"},
+        {id: 2, name: "Store 2"},
+        {id: 3, name: "Store 3"},
+    ];
+    let selected_store = available_stores[0];
+    let selected_products = new Map();
 
-    $: console.log(selected_products);
-
-    $: raw_data = [...Array(Math.floor(differenceInCalendarDays(new Date(picked_end_date), new Date(picked_start_date))/10))].map(_x => generate_data()).sort((a, b) => a.t - b.t);
+    $: points_to_generate = Math.floor(differenceInCalendarDays(new Date(picked_end_date), new Date(picked_start_date))/30);
+    $: raw_data = Array.from(selected_products.values()).map(product => ({
+        product: product,
+        data: [...Array(points_to_generate)].map(_ => generate_data(product)).sort((a, b) => a.t - b.t),
+    }));
 </script>
 
-<ProductPicker bind:selected_products />
 <Chart {raw_data} />
 <label>Start date<input bind:this={start_date_picker} type=date bind:value={picked_start_date}></label>
 <label>End date<input bind:this={end_date_picker} type=date bind:value={picked_end_date}></label>
+
+<hr>
+
+<select bind:value={selected_store}>
+    {#each available_stores as store (store.id)}
+    <option value={store}>{store.name}</option>
+    {/each}
+</select>
+<ProductPicker store={selected_store} bind:selected_products />
